@@ -1,4 +1,5 @@
-//////////// Login Error Message Script /////////////////////
+/ ******** Login Error Message Script  ******* /
+
 $(document).ready(function () {
 
   var urlstr = window.location.href;
@@ -6,6 +7,24 @@ $(document).ready(function () {
     $(".top_strip .top_log_buttom li:first a").trigger('click');
   }
 
-/////////// End Login Error Message Script /////////////////
+/ ******** End Login Error Message Script ****** /
 
 });
+
+/********* Ajax Call Function *********/
+
+ var state_name=$('#state').val();
+        //alert("I am testing"+state_name);
+        
+        $.ajax({
+        type:"POST",
+        
+       url:"ajax.php",
+        data:{"state_name":state_name},
+        success: function(result){
+        $("#store").html(result);
+        
+        }
+        });
+        
+/********  End Ajax Call Function *******/
