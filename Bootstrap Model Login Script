@@ -1,0 +1,11 @@
+//////////// Login Error Message Script /////////////////////
+$(document).ready(function () {
+
+  var urlstr = window.location.href;
+  if(urlstr.indexOf("loginerror") > 0){ 
+    $(".top_strip .top_log_buttom li:first a").trigger('click');
+  }
+
+/////////// End Login Error Message Script /////////////////
+
+});
