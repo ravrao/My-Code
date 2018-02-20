@@ -1,0 +1,95 @@
+////////////////////////////// Isotope Code By Custom Taxonomy ///////////////////////////////////
+
+<section class="store-section">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-12 col-sm-12 col-xs-12">
+                <div class="button-group filters-button-group">
+                    <button class="button is-checked" data-filter="*">ALL</button>
+                    <?php
+                   
+                   $store=get_categories(array('taxonomy' => 'store','hide_empty'=>0));
+                   foreach($store as $value)
+                   {
+                   ?>   
+                    <button class="button" data-filter=".<?php echo $value->slug;?>"><?php echo $value->name;?></button>
+                   <?php } ?>
+                    
+                  </div>
+
+                <div class="grid">
+                 
+                <?php
+                query_posts( array(
+                'post_type' => 'store', 
+                'showposts' => -1,  )    
+                ); 
+               
+                if( have_posts() ): while ( have_posts() ) : the_post(); 
+                 $categories = get_the_terms( $post->ID, 'store'); //var_dump($categories);
+                 $slug = $categories[0]->slug;
+                ?>          
+                    
+                    <div class="element-item <?php echo $slug ?> ">                      
+                        <div class="col-md-9 col-sm-9 col-xs-12">
+                            <h2><?php the_title();?></h2>
+                            <h4><?php echo $slug ?></h4>
+                            <?php the_content();?>
+                        </div>
+                        <div class="col-md-3 col-sm-3 col-xs-12"><a href="#" class="btn">ENQUIRE</a></div>
+                    </div>
+                    
+                <?php endwhile; endif;
+                 
+                ?>    
+               
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+////////////////////////////////////////////// Create Taxonony HERE Code //////////////////////////////////////////
+
+//create a function that will attach our new 'member' taxonomy to the 'post' post type
+
+function add_member_taxonomy_to_post(){
+
+   //set the name of the taxonomy
+   $taxonomy = 'store';
+   //set the post types for the taxonomy
+   $object_type = 'store';
+   
+   //populate our array of names for our taxonomy
+   $labels = array(
+       'name'               => 'Stores',
+       'singular_name'      => 'Store',
+       'search_items'       => 'Search Stores',
+       'all_items'          => 'All Stores',
+       'parent_item'        => 'Parent Store',
+       'parent_item_colon'  => 'Parent Store:',
+       'update_item'        => 'Update Store',
+       'edit_item'          => 'Edit Store',
+       'add_new_item'       => 'Add New Store',
+       'new_item_name'      => 'New Store Name',
+       'menu_name'          => 'Store'
+   );
+   
+   //define arguments to be used
+   $args = array(
+       'labels'            => $labels,
+       'hierarchical'      => true,
+       'show_ui'           => true,
+       'how_in_nav_menus'  => true,
+       'public'            => true,
+       'show_admin_column' => true,
+       'query_var'         => true,
+       'rewrite'           => array('slug' => 'av_store')
+   );
+   
+   //call the register_taxonomy function
+   register_taxonomy($taxonomy, $object_type, $args);
+}
+add_action('init','add_member_taxonomy_to_post');
+
+
