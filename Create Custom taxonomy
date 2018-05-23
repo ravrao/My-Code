@@ -1,0 +1,64 @@
+function add_state_taxonomy_to_post(){
+
+   //set the name of the taxonomy
+   $taxonomy = 'state';
+   //set the post types for the taxonomy
+   $object_type = 'our_team';
+   
+   //populate our array of names for our taxonomy
+   $labels = array(
+       'name'               => 'State',
+       'singular_name'      => 'State',
+       'search_items'       => 'Search State',
+       'all_items'          => 'All State',
+       'parent_item'        => 'Parent State',
+       'parent_item_colon'  => 'Parent State:',
+       'update_item'        => 'Update State',
+       'edit_item'          => 'Edit State',
+       'add_new_item'       => 'Add New State',
+       'new_item_name'      => 'New State Name',
+       'menu_name'          => 'State'
+   );
+   
+   //define arguments to be used
+   $args = array(
+       'labels'            => $labels,
+       'hierarchical'      => true,
+       'show_ui'           => true,
+       'how_in_nav_menus'  => true,
+       'public'            => true,
+       'show_admin_column' => true,
+       'query_var'         => true,
+       'rewrite'           => array('slug' => 'state')
+   );
+   
+   //call the register_taxonomy function
+   register_taxonomy($taxonomy, array( 'our_team', 'our_course' ), $args);
+}
+add_action('init','add_state_taxonomy_to_post');
+
+================== Call Taxonomy ===============
+
+<?php
+
+$course=get_categories(array('taxonomy' => 'courses','hide_empty'=>0));
+foreach($course as $value)
+{
+?> 
+<div class="item">
+<a href="<?php bloginfo('url')?>/course/<?php echo $value->slug;?>/">
+<div class="img-box">
+
+<img src="<?php echo z_taxonomy_image_url($value->term_id); ?>" alt="" class="img-responsive">
+<div class="event-overlay"></div>
+</div>
+</a>
+<div class="info">
+<a href="<?php bloginfo('url')?>/course/<?php echo $value->slug;?>/"><div class="heading"><?php echo $value->name;?></div></a>
+<a href="<?php bloginfo('url')?>/course/<?php echo $value->slug;?>/"><?php echo $value->description;?></a>
+</div>                         
+</div>
+<?php }?> 
+
+
+
