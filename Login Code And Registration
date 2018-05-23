@@ -1,0 +1,117 @@
+
+==================== Login ==========================
+
+$creds = array(); 
+    $creds['user_login'] = $uname; 
+    $creds['user_password'] = $pass; 
+    $creds['remember'] = true; 
+    $user = wp_signon( $creds, false ); 
+    if ( is_wp_error($user) )
+    {
+     echo $user->get_error_message();
+    }
+   
+================== Registration Code ====================
+    
+/**
+* Registering a new user.
+*/
+add_action('template_redirect', 'register_user');
+function register_user(){
+if(isset($_GET['do']) && $_GET['do'] == 'register'):
+$errors = array();
+if(empty($_POST['first_name']))
+$errors[] = '<div class="errormsg">Please enter a First Name.</div>';
+if(empty($_POST['last_name']))
+$errors[] = '<div class="errormsg">Please enter a Last Name.</div>';
+if(empty($_POST['user']))
+$errors[] = '<div class="errormsg">Please enter a user name.</div>';
+if(empty($_POST['email']))
+$errors[] = '<div class="errormsg">Please enter a email.</div>';
+if(empty($_POST['address1']))
+$errors[] = '<div class="errormsg">Please enter a address1.</div>';
+//if(empty($_POST['address2']))
+// $errors[] = '<div class="errormsg">Please enter a address2.</div>';
+if(empty($_POST['zip_code']))
+$errors[] = '<div class="errormsg">Please enter a zip code.</div>';
+if(empty($_POST['date_of_birth']))
+$errors[] = '<div class="errormsg">Please enter a Date Of birth.</div>';
+$dateArr = explode('/', $_POST['date_of_birth']);
+//print_r($dateArr);
+$date_convert=date('F j, Y', mktime(0,0,0,$dateArr[1],$dateArr[0],$dateArr[2]));
+//$then = strtotime('March 23, 2016');
+$then = strtotime($date_convert);
+//The age to be over, over +18
+$min = strtotime('+18 years', $then);
+if(time() < $min)
+{
+$errors[] = '<div class="errormsg">You need to be 18 years and above to signup</div>';
+}
+if(empty($_POST['pass']))
+$errors[] = '<div class="errormsg">Please enter a password.</div>';
+if(empty($_POST['cpass']))
+$errors[] = '<div class="errormsg">Please enter a confirm password.</div>';
+if((!empty($_POST['cpass']) && !empty($_POST['pass'])) && ($_POST['pass'] != $_POST['cpass']))
+$errors[] = '<div class="errormsg">Entered password did not match.</div>';
+$first_name = esc_attr($_POST['first_name']);
+$last_name = esc_attr($_POST['last_name']);
+$user_login = esc_attr($_POST['user']);
+$user_email = esc_attr($_POST['email']);
+$user_address1 = esc_attr($_POST['address1']);
+$user_address2 = esc_attr($_POST['address2']);
+$user_city = esc_attr($_POST['city']);
+$user_state = esc_attr($_POST['state']);
+$user_zip_code = esc_attr($_POST['zip_code']);
+$user_date_of_birth = esc_attr($_POST['date_of_birth']);
+$user_pass = esc_attr($_POST['pass']);
+$user_confirm_pass = esc_attr($_POST['cpass']);
+$user_height = esc_attr($_POST['height']);
+$user_ft = esc_attr($_POST['ft']);
+$user_inch = esc_attr($_POST['inch']);
+$sanitized_user_login = sanitize_user($user_login);
+$user_email = apply_filters('user_registration_email', $user_email);
+if(!is_email($user_email))
+$errors[] = '<div class="errormsg">Invalid e-mail.</div>';
+elseif(email_exists($user_email))
+$errors[] = '<div class="errormsg">This email is already registered.</div>';
+if(empty($sanitized_user_login) || !validate_username($user_login))
+$errors[] = '<div class="errormsg">Invalid user name.</div>';
+elseif(username_exists($sanitized_user_login))
+$errors[] = '<div class="errormsg">User name already exists.</div>';
+if(empty($errors)):
+$user_id = wp_create_user($sanitized_user_login, $user_pass, $user_email);
+if(!$user_id):
+$errors[] = '<div class="errormsg">Registration failed</div>';
+else:
+update_user_option($user_id, 'default_password_nag', true, true);
+wp_new_user_notification($user_id, $user_pass);
+update_user_meta ($user_id, 'first_name', $first_name);
+update_user_meta ($user_id, 'last_name', $last_name);
+update_user_meta ($user_id, 'user_address1', $user_address1);
+update_user_meta ($user_id, 'user_address2', $user_address2);
+update_user_meta ($user_id, 'user_city', $user_city);
+update_user_meta ($user_id, 'user_state', $user_state);
+update_user_meta ($user_id, 'user_zip_code', $user_zip_code);
+update_user_meta ($user_id, 'user_date_of_birth', $user_date_of_birth);
+update_user_meta ($user_id, 'user_height', $user_height);
+update_user_meta ($user_id, 'user_ft', $user_ft);
+update_user_meta ($user_id, 'user_inch', $user_inch);
+wp_cache_delete ($user_id, 'users');
+wp_cache_delete ($user_login, 'userlogins');
+do_action ('user_register', $user_id);
+$user_data = get_userdata ($user_id);
+if ($user_data !== false) {
+wp_clear_auth_cookie();
+wp_set_auth_cookie ($user_data->ID, true);
+do_action ('wp_login', $user_data->user_login, $user_data);
+// Redirect user.
+wp_redirect ('?page_id=7');
+exit();
+}
+endif;
+endif;
+if(!empty($errors))
+define('REGISTRATION_ERROR', serialize($errors));
+endif;
+}    
+    
