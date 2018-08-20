@@ -1,0 +1,529 @@
+How to crate theme.
+<div class="newarrival">
+<div class="container">{{widget type="Magento\Cms\Block\Widget\Block" template="widget/static_block/default.phtml" block_id="1"}} {{widget type="Magento\Cms\Block\Widget\Block" template="widget/static_block/default.phtml" block_id="3"}}</div>
+</div>
+<div class="body_part">
+<div class="mid_container">
+<div class="top">{{block class="Magento\Framework\View\Element\Template" template="Magento_Theme::html/home-tab.phtml"}}</div>
+<div class="middle">{{widget type="Magento\Cms\Block\Widget\Block" template="widget/static_block/default.phtml" block_id="4"}}</div>
+<div class="top">{{block class="Magento\Framework\View\Element\Template" template="Magento_Theme::html/skd.phtml"}}</div>
+</div>
+</div>
+<div class="about_part">
+<div class="mid_container">
+<div class="left_col">{{widget type="Magento\Cms\Block\Widget\Block" template="widget/static_block/default.phtml" block_id="5"}}</div>
+<div class="right_col">{{widget type="Magento\Cms\Block\Widget\Block" template="widget/static_block/default.phtml" block_id="6"}}</div>
+</div>
+</div>
+
+======================= Best Sellers Code ================================================
+
+<?php
+$objectManager = \Magento\Framework\App\ObjectManager::getInstance();
+$productCollection = $objectManager->create('Magento\Reports\Model\ResourceModel\Report\Collection\Factory');
+$bestsellercollection = $productCollection->create('Magento\Sales\Model\ResourceModel\Report\Bestsellers\Collection');
+
+$listBlock = $objectManager->get('\Magento\Catalog\Block\Product\ListProduct');
+$reviewFactory = $objectManager->create('Magento\Review\Model\Review');
+?>
+
+<div class="mid_sec">
+    <div class="content-heading">
+        <h2 class="title">Best Seller</h2>
+    </div>
+    <div class="mid_container">
+        <div id="owl-demo-best" class="owl-carousel">
+            <?php
+            foreach ($bestsellercollection as $_cvalue) {
+                $objectManager = \Magento\Framework\App\ObjectManager::getInstance();
+                $product = $objectManager->create('Magento\Catalog\Model\Product')->load($_cvalue->getData('product_id'));
+                $priceHelper = $objectManager->create('Magento\Framework\Pricing\Helper\Data');
+                $formattedPrice = $priceHelper->currency($_cvalue['product_price'], true, false);
+
+                $imagewidth = 302;
+                $imageheight = 425;
+                $imageHelper = $objectManager->get('\Magento\Catalog\Helper\Image');
+                $image_url = $imageHelper->init($product, 'product_page_image_small')
+                                ->setImageFile($product->getFile())
+                                ->resize($imagewidth, $imageheight)->getUrl();
+                ?>
+
+
+                
+                <div class="item">
+
+                    <a href="<?php echo $product->getProductUrl(); ?>" class="pic_sec"><img src="<?php echo $image_url; ?>" alt="Owl Image">
+                        <!-- Discount Price -->
+
+                        <?php
+                        $_finalPrice = $product->getFinalPrice();
+                        $_price = $product->getPrice();
+                        ?>
+                        <?php if ($_finalPrice < $_price): ?>
+                            <?php $_savePercent = 100 - round(($_finalPrice / $_price) * 100); ?>
+                            <span class="discount_sec"> <span><?php echo $_savePercent; ?>%</span> <em> OFF</em> </span>
+                        <?php endif; ?>
+                        <!-- End Discount Price -->
+
+                    </a>
+                    <div class="product-item-details">
+                        <!-- rating Code -->
+                        <?php
+                        $productId = $_cvalue['product_id'];
+                        $reviewFactory = $objectManager->create('Magento\Review\Model\Review');
+                        $product = $objectManager->create('Magento\Catalog\Model\Product')->load($productId);
+                        $storeManager = $objectManager->create('\Magento\Store\Model\StoreManagerInterface');
+                        $storeId = $storeManager->getStore()->getStoreId();
+                        $reviewFactory->getEntitySummary($product, $storeId);
+                        $ratingSummary = $product->getRatingSummary()->getRatingSummary();
+                        $reviewCount = $product->getRatingSummary()->getReviewsCount();
+                        ?>
+                        <?php if ($ratingSummary) { ?>
+                            <div class="product-reviews-summary short">
+                                <div class="rating-summary">
+                                    <div title="<?php echo (int) $ratingSummary; ?>%" class="rating-result">
+                                        <span style="width:<?php echo (int) $ratingSummary; ?>%"><span><?php echo (int) $ratingSummary; ?>%</span></span>
+                                    </div>
+                                </div>
+
+                            </div>
+                        <?php } ?>
+                        <!-- End Rating code -->    
+                        <strong class="product-item-name">
+                            <a title="Fusion Backpack" href="<?php echo $product->getProductUrl(); ?>" class="product-item-link">
+                                <?php echo $_cvalue['product_name']; ?>
+
+
+                            </a>
+                        </strong>
+
+                    </div>
+                    <div class="price"><?php echo $formattedPrice; ?>
+                        <?php //echo $product->getProductPrice($product)   ?>
+                    </div>
+
+
+
+                    <!-- Add to cart -->        
+                    <?php $addToCartUrl = $listBlock->getAddToCartUrl($product); ?>
+                    <div class="button_area">
+
+                        <a href="#" data-post='<?php echo $this->helper('Magento\Wishlist\Helper\Data')->getAddParams($product) ?>' class="action towishlist" data-action="add-to-wishlist"><span class="favourite"></span></a>
+                        <form data-role="tocart-form" action="<?php echo $addToCartUrl; ?>" method="post"> 
+
+                            <?php echo $block->getBlockHtml('formkey') ?>
+
+                            <button type="submit" title="Add to Cart" class="action tocart primary">
+
+                                <span>Add to Cart</span>
+                            </button>
+                        </form>
+                        <a class="weltpixel-quickview weltpixel_quickview_button_v2" data-quickview-url="<?php echo $block->getBaseUrl(); ?>/weltpixel_quickview/catalog_product/view/id/<?php echo $productId;?>/" href="javascript:void(0);"> 
+                            <span class="view"></span></a>
+                    </div>
+
+
+                </div> 
+            <?php } ?>
+
+        </div>
+    </div>
+</div>
+
+
+
+<script type="text/x-magento-init">
+    {
+    "#owl-demo-best": {
+    "OwlCarousel": {
+    "navigation" : true,
+    "autoPlay": false,
+    "pagination": false,
+    "navigationText" : ["<i class='fa fa-angle-left'> </i>","<i class='fa fa-angle-right'> </i>"],
+    "items": 4,
+    "itemsDesktop": [1199, 3],
+    "itemsDesktopSmall": [979, 3]
+    }
+    }
+    }
+</script>
+
+======================================== Featured Product ========================================
+
+<?php
+$objectManager = \Magento\Framework\App\ObjectManager::getInstance();
+$productCollection = $objectManager->create('Magento\Catalog\Model\ResourceModel\Product\CollectionFactory');
+$featuredcollection = $productCollection->create()
+        ->addAttributeToFilter('featured', 1)
+        ->load();
+
+$listBlock = $objectManager->get('\Magento\Catalog\Block\Product\ListProduct');
+$reviewFactory = $objectManager->create('Magento\Review\Model\Review');
+?>
+<div class="our_art">
+    <div class="content-heading">
+        <h2 class="title">Featured</h2>
+    </div>
+    <div class="mid_container">
+        <div id="owl-demo-featured" class="owl-carousel">
+<?php foreach ($featuredcollection as $fproduct) { ?>
+    <?php
+    $product = $objectManager->create('Magento\Catalog\Model\Product')->load($fproduct->getData('entity_id'));
+    $priceHelper = $objectManager->create('Magento\Framework\Pricing\Helper\Data');
+    $formattedPrice = $priceHelper->currency($product->getPrice(), true, false);
+    $imagewidth = 302;
+    $imageheight = 425;
+    $imageHelper = $objectManager->get('\Magento\Catalog\Helper\Image');
+    $image_url = $imageHelper->init($product, 'product_page_image_small')
+                    ->setImageFile($product->getFile())
+                    ->resize($imagewidth, $imageheight)->getUrl();
+    ?>
+        
+            <div class="item">
+               
+                <a href="<?php echo $fproduct->getProductUrl(); ?>" class="pic_sec"><img src="<?php echo $image_url; ?>" alt="Owl Image">
+                
+                       <!-- Discount Price -->
+                    
+                    <?php 
+                    $_finalPrice=$product->getFinalPrice(); 
+                     $_price=$product->getPrice();
+
+                    ?>
+                        <?php if($_finalPrice < $_price): ?>
+                        <?php $_savePercent = 100 - round(($_finalPrice / $_price)*100); ?>
+                                 <span class="discount_sec"> <span><?php echo $_savePercent; ?>%</span> <em> OFF</em> </span>
+                        <?php endif; ?>
+                    <!-- End Discount Price -->
+                
+                </a>
+            <div class="product-item-details">
+                        <strong class="product-item-name">
+                            <a title="Fusion Backpack" href="<?php echo $fproduct->getProductUrl(); ?>" class="product-item-link">
+                               <?php echo $product->getName(); ?> </a>
+                        </strong>
+                     
+                    </div>
+                <div class="price"><?php  echo $formattedPrice; ?>
+                <?php //echo $product->getProductPrice($product) ?>
+                </div>
+                
+            <!-- rating Code -->
+          <?php
+            $productId = $fproduct->getId();
+            $reviewFactory = $objectManager->create('Magento\Review\Model\Review');
+            $product = $objectManager->create('Magento\Catalog\Model\Product')->load($productId);
+            $storeManager  = $objectManager->create('\Magento\Store\Model\StoreManagerInterface');
+            $storeId = $storeManager->getStore()->getStoreId();
+            $reviewFactory->getEntitySummary($product, $storeId);
+            $ratingSummary = $product->getRatingSummary()->getRatingSummary();
+            $reviewCount = $product->getRatingSummary()->getReviewsCount();
+            ?>
+            <?php if($ratingSummary){ ?>
+            <div class="product-reviews-summary short">
+                <div class="rating-summary">
+                    <div title="<?php echo (int)$ratingSummary; ?>%" class="rating-result">
+                        <span style="width:<?php echo (int)$ratingSummary; ?>%"><span><?php echo (int)$ratingSummary; ?>%</span></span>
+                    </div>
+                </div>
+               
+            </div>
+            <?php } ?>
+          <!-- End Rating code -->    
+                               
+            <?php 
+            $addToCartUrl =  $listBlock->getAddToCartUrl($product); ?>
+
+            <div class="button_area">
+                        <span class="favourite"></span>
+                        <form data-role="tocart-form" action="<?php echo $addToCartUrl; ?>" method="post"> 
+
+                            <?php echo $block->getBlockHtml('formkey') ?>
+
+                            <button type="submit" title="Add to Cart" class="action tocart primary">
+
+                                <span>Add to Cart</span>
+                            </button>
+                        </form>
+                        <a class="weltpixel-quickview weltpixel_quickview_button_v2" data-quickview-url="<?php echo $block->getBaseUrl(); ?>/weltpixel_quickview/catalog_product/view/id/<?php echo $productId;?>/" href="javascript:void(0);"> 
+                            <span class="view"></span></a>
+                    </div>  
+                
+            </div> 
+          
+<?php } ?>
+ </div>
+    </div>
+</div>
+<script type="text/x-magento-init">
+    {
+        "#owl-demo-featured": {
+            "OwlCarousel": {
+                "navigation" : true,
+                "autoPlay": 3000,
+                "pagination": false,
+                "navigationText" : ["<i class='fa fa-angle-left'> </i>","<i class='fa fa-angle-right'> </i>"],
+                "items": 4,
+                "itemsDesktop": [1199, 3],
+                "itemsDesktopSmall": [979, 3]
+            }
+        }
+    }
+</script>
+
+=========================================== Festival Specials By Attributes Code =====================================
+<?php
+//{{block type="core/template" template="html/featured.phtml" block_id="100"}}
+//<p>{{widget type="Magento\Cms\Block\Widget\Block" template="widget/static_block/default.phtml" block_id="23"}}</p>
+//<p>{{block type="Magento\Cms\Block" template="widget/static_block/default.phtml" block_id="23"}}</p>
+//{{block class="Magento\Framework\View\Element\Template" template="Vendor_Module::myfiles/myfile.phtml"}}
+
+$objectManager = \Magento\Framework\App\ObjectManager::getInstance();
+$productCollection = $objectManager->create('Magento\Catalog\Model\ResourceModel\Product\CollectionFactory');
+$featuredcollection = $productCollection->create()
+        ->addAttributeToFilter('festival_special', 1)
+        ->load();
+
+$listBlock = $objectManager->get('\Magento\Catalog\Block\Product\ListProduct');
+$reviewFactory = $objectManager->create('Magento\Review\Model\Review');
+//$storeId = $this->_storeManager->getStore()->getId();
+?>
+
+
+<div class="mid_sec">
+    <div class="content-heading">
+        <h2 class="title">SAREE</h2>
+    </div>
+    <div class="mid_container">
+        <div id="owl-demo-art" class="owl-carousel">
+            <?php foreach ($featuredcollection as $fproduct) { ?>
+                <?php
+                $product = $objectManager->create('Magento\Catalog\Model\Product')->load($fproduct->getData('entity_id'));
+                $priceHelper = $objectManager->create('Magento\Framework\Pricing\Helper\Data');
+                $formattedPrice = $priceHelper->currency($product->getFinalPrice(), true, false);
+                $imagewidth = 302;
+                $imageheight = 425;
+                $imageHelper = $objectManager->get('\Magento\Catalog\Helper\Image');
+                $image_url = $imageHelper->init($product, 'product_page_image_small')
+                                ->setImageFile($product->getFile())
+                                ->resize($imagewidth, $imageheight)->getUrl();
+                ?>
+
+                <div class="item">
+
+                    <a href="<?php echo $product->getProductUrl(); ?>" class="pic_sec"><img src="<?php echo $image_url; ?>" alt="Owl Image">
+                    
+                         <!-- Discount Price -->
+                    
+                    <?php 
+                    $_finalPrice=$product->getFinalPrice(); 
+                     $_price=$product->getPrice();
+
+                    ?>
+                        <?php if($_finalPrice < $_price): ?>
+                        <?php $_savePercent = 100 - round(($_finalPrice / $_price)*100); ?>
+                                 <span class="discount_sec"> <span><?php echo $_savePercent; ?>%</span> <em> OFF</em> </span>
+                        <?php endif; ?>
+                    <!-- End Discount Price -->
+                    
+                    </a>
+                    <div class="product-item-details">
+                        <!-- rating Code -->
+                        <?php
+                        $productId = $fproduct->getId();
+                        $reviewFactory = $objectManager->create('Magento\Review\Model\Review');
+                        $product = $objectManager->create('Magento\Catalog\Model\Product')->load($productId);
+                        $storeManager = $objectManager->create('\Magento\Store\Model\StoreManagerInterface');
+                        $storeId = $storeManager->getStore()->getStoreId();
+                        $reviewFactory->getEntitySummary($product, $storeId);
+                        $ratingSummary = $product->getRatingSummary()->getRatingSummary();
+                        $reviewCount = $product->getRatingSummary()->getReviewsCount();
+                        ?>
+                        <?php if ($ratingSummary) { ?>
+                            <div class="product-reviews-summary short">
+                                <div class="rating-summary">
+                                    <div title="<?php echo (int) $ratingSummary; ?>%" class="rating-result">
+                                        <span style="width:<?php echo (int) $ratingSummary; ?>%"><span><?php echo (int) $ratingSummary; ?>%</span></span>
+                                    </div>
+                                </div>
+
+                            </div>
+                        <?php } ?>
+                        <!-- End Rating code -->    
+                        <strong class="product-item-name">
+                            <a title="Fusion Backpack" href="<?php echo $product->getProductUrl(); ?>" class="product-item-link">
+                                <?php echo $product->getName(); ?>
+                   
+                            
+                            </a>
+                        </strong>
+
+                    </div>
+                    <div class="price"><?php echo $formattedPrice; ?>
+                        <?php //echo $product->getProductPrice($product)  ?>
+                    </div>
+
+
+
+                    <!-- Add to cart -->        
+                    <?php $addToCartUrl = $listBlock->getAddToCartUrl($product); ?>
+                    <div class="button_area">
+                       
+                        <a href="#" data-post='<?php  echo $this->helper('Magento\Wishlist\Helper\Data')->getAddParams($product) ?>' class="action towishlist" data-action="add-to-wishlist"><span class="favourite"></span></a>
+                        <form data-role="tocart-form" action="<?php echo $addToCartUrl; ?>" method="post"> 
+
+                            <?php echo $block->getBlockHtml('formkey') ?>
+
+                            <button type="submit" title="Add to Cart" class="action tocart primary">
+
+                                <span>Add to Cart</span>
+                            </button>
+                        </form>
+                        <a class="weltpixel-quickview weltpixel_quickview_button_v2" data-quickview-url="<?php echo $block->getBaseUrl(); ?>/weltpixel_quickview/catalog_product/view/id/<?php echo $productId;?>/" href="javascript:void(0);"> 
+                            <span class="view"></span></a>
+                        
+                        
+                    </div>
+                    
+                   
+                </div> 
+
+            <?php } ?>
+        </div>
+    </div>
+</div>
+
+
+
+<script type="text/x-magento-init">
+    {
+    "#owl-demo-art": {
+    "OwlCarousel": {
+    "navigation" : true,
+    "autoPlay": false,
+    "pagination": false,
+    "navigationText" : ["<i class='fa fa-angle-left'> </i>","<i class='fa fa-angle-right'> </i>"],
+    "items": 4,
+    "itemsDesktop": [1199, 3],
+    "itemsDesktopSmall": [979, 3]
+    }
+    }
+    }
+</script>
+
+========================================== New Arrival Or Lateset Product =================================
+<?php
+$objectManager = \Magento\Framework\App\ObjectManager::getInstance();
+$productCollection = $objectManager->create('Magento\Catalog\Model\ResourceModel\Product\CollectionFactory');
+$recentcollection = $productCollection->create()
+            ->addAttributeToSelect('*')
+            ->addAttributeToSort('created_at', 'DESC')
+            ->setPageSize(1000)
+            ->load();
+
+$listBlock = $objectManager->get('\Magento\Catalog\Block\Product\ListProduct');
+$reviewFactory = $objectManager->create('Magento\Review\Model\Review');
+//$storeId = $this->_storeManager->getStore()->getId();
+?>
+
+<div class="mid_sec">
+    <div class="content-heading">
+        <h2 class="title">New Arrival</h2>
+    </div>
+    <div class="mid_container">
+        <div id="owl-demo-art-lat" class="owl-carousel">
+
+<?php foreach ($recentcollection as $rproduct) { 
+ if($rproduct->getTypeId()!='virtual') {?>
+<?php $product = $objectManager->create('Magento\Catalog\Model\Product')->load($rproduct->getData('entity_id'));
+$priceHelper = $objectManager->create('Magento\Framework\Pricing\Helper\Data'); 
+$formattedPrice = $priceHelper->currency($product->getFinalPrice(), true, false);
+$imagewidth=302; $imageheight=425; 
+$imageHelper = $objectManager->get('\Magento\Catalog\Helper\Image'); 
+$image_url = $imageHelper->init($product, 'product_page_image_small')
+ ->setImageFile($product->getFile())
+ ->resize($imagewidth, $imageheight)->getUrl(); 
+?>
+
+
+<div class="item">
+
+                    <a href="<?php echo $product->getProductUrl(); ?>"><img src="<?php echo $image_url; ?>" alt="Owl Image"></a>
+                    <div class="product-item-details">
+                        <!-- rating Code -->
+                        <?php
+                        $productId = $rproduct->getId();
+                        $reviewFactory = $objectManager->create('Magento\Review\Model\Review');
+                        $product = $objectManager->create('Magento\Catalog\Model\Product')->load($productId);
+                        $storeManager = $objectManager->create('\Magento\Store\Model\StoreManagerInterface');
+                        $storeId = $storeManager->getStore()->getStoreId();
+                        $reviewFactory->getEntitySummary($product, $storeId);
+                        $ratingSummary = $product->getRatingSummary()->getRatingSummary();
+                        $reviewCount = $product->getRatingSummary()->getReviewsCount();
+                        ?>
+                        <?php if ($ratingSummary) { ?>
+                            <div class="product-reviews-summary short">
+                                <div class="rating-summary">
+                                    <div title="<?php echo (int) $ratingSummary; ?>%" class="rating-result">
+                                        <span style="width:<?php echo (int) $ratingSummary; ?>%"><span><?php echo (int) $ratingSummary; ?>%</span></span>
+                                    </div>
+                                </div>
+
+                            </div>
+                        <?php } ?>
+                        <!-- End Rating code -->    
+                        <strong class="product-item-name">
+                            <a title="Fusion Backpack" href="<?php echo $product->getProductUrl(); ?>" class="product-item-link">
+                                <?php echo $product->getName(); ?> </a>
+                        </strong>
+
+                    </div>
+                    <div class="price"><?php echo $formattedPrice; ?>
+                        <?php //echo $product->getProductPrice($product)  ?>
+                    </div>
+
+
+
+                    <!-- Add to cart -->        
+                    <?php $addToCartUrl = $listBlock->getAddToCartUrl($product); ?>
+                    <div class="button_area">
+                       
+                        <a href="#" data-post='<?php  echo $this->helper('Magento\Wishlist\Helper\Data')->getAddParams($product) ?>' class="action towishlist" data-action="add-to-wishlist"><span class="favourite"></span></a>
+                        <form data-role="tocart-form" action="<?php echo $addToCartUrl; ?>" method="post"> 
+
+                            <?php echo $block->getBlockHtml('formkey') ?>
+
+                            <button type="submit" title="Add to Cart" class="action tocart primary">
+
+                                <span>Add to Cart</span>
+                            </button>
+                        </form>
+                       <a class="weltpixel-quickview weltpixel_quickview_button_v2" data-quickview-url="<?php echo $block->getBaseUrl(); ?>/weltpixel_quickview/catalog_product/view/id/<?php echo $productId;?>/" href="javascript:void(0);"> 
+                            <span class="view"></span></a>
+                    </div>
+
+
+                </div> 
+ <?php } }?>
+</div>
+    </div>
+</div>
+
+
+
+<script type="text/x-magento-init">
+    {
+    "#owl-demo-art-lat": {
+    "OwlCarousel": {
+    "navigation" : true,
+    "autoPlay": false,
+    "pagination": false,
+    "navigationText" : ["<i class='fa fa-angle-left'> </i>","<i class='fa fa-angle-right'> </i>"],
+    "items": 4,
+    "itemsDesktop": [1199, 3],
+    "itemsDesktopSmall": [979, 3]
+    }
+    }
+    }
+</script>
+
