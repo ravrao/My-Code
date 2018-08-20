@@ -1,0 +1,45 @@
+<?xml version="1.0"?>
+<!--
+/**
+ * Copyright © 2013-2017 Magento, Inc. All rights reserved.
+ * See COPYING.txt for license details.
+ */
+-->
+<page xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:View/Layout/etc/page_configuration.xsd">
+    <body>
+        <referenceContainer name="header.panel">
+            <block class="Magento\Framework\View\Element\Template" name="section-header-top" template="Magento_Theme::html/header-top.phtml" />
+            <block class="Magento\Framework\View\Element\Html\Links" name="header.links">
+                <arguments>
+                    <argument name="css_class" xsi:type="string">header links</argument>
+                </arguments>
+            </block>            
+        </referenceContainer> 
+        <referenceBlock name="header.links" remove="true"/>
+        <referenceContainer name="header-wrapper" htmlClass="header content">
+        <referenceBlock name="logo">
+            <arguments>
+                <argument name="logo_img_width" xsi:type="number">148</argument>
+                <argument name="logo_img_height" xsi:type="number">43</argument>
+            </arguments>
+        </referenceBlock>
+        <block class="Magento\Framework\View\Element\Template" name="section-address" template="Magento_Theme::html/header-wrapper.phtml" />
+        </referenceContainer>
+        <referenceContainer name="catalog.topnav">
+            <block class="Magento\Framework\View\Element\Template" name="section-customer" template="Magento_Theme::html/customer-login-logout.phtml" />
+        </referenceContainer>    
+        
+        <move element="minicart" destination="catalog.topnav" />
+        <!--<move element="customer" destination="catalog.topnav" />-->
+        <referenceBlock name="wishlist_sidebar" remove="true" />
+        <referenceContainer name="footer">
+            <block class="Magento\Framework\View\Element\Template" name="section-footer-top" template="Magento_Theme::html/footer-top.phtml" />
+            <block class="Magento\Framework\View\Element\Template" name="section-footer-2ndtop" template="Magento_Theme::html/footer-bottom.phtml" />
+            <block class="Magento\Framework\View\Element\Template" type="newsletter/subscribe" name="newsletter" as="newsletter" template="newsletter/subscribe.phtml" before="-" />
+        <referenceBlock name="form.subscribe" remove="true" />
+        <referenceBlock name="footer_links" remove="true" />
+        </referenceContainer>
+        <referenceBlock name="report.bugs" remove="true"/>
+        <move element="copyright" destination="before.body.end"/>
+    </body>
+</page>
